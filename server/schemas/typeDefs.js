@@ -3,7 +3,9 @@ const typeDefs = `
     _id: ID
     username: String
     email: String
-    savedBook: [Book]
+    password: String
+    bookCount: Int
+    savedBooks: [Book]
   }
 
   type Book {
@@ -21,7 +23,9 @@ const typeDefs = `
   }
 
   type Query {
-    me(username: String!): User
+    user(userId: ID!): User
+    users: [User]!
+    me: User
 
   }
 
@@ -29,7 +33,6 @@ const typeDefs = `
     addUser(username: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth  
     saveBook(
-      userId: ID!
       bookId: ID!
       authors: [String]
       description: String

@@ -1,27 +1,25 @@
 const { User } = require('../models');
-const { signToken, AuthenticationError } = require('../utils/auth');
+const { signToken, AuthenticationError, authMiddleware } = require('../utils/auth');
 
 const resolvers = {
   Query: {
-    me: async (parent, args, context) => {
-      if(context.user) {
-          return User.findOne({_id: context.user._id})
-      }
-      throw AuthenticationError;
+  users: async () => {
+    return User.find();
+  },
+  user: async (parent, {userId}) => {
+    return User.findOne({_id: userId})
+  },
+  me: async (parent, args, context) => {
+  
+    if(context.user) {
+        return User.findOne({_id: context.user._id}).populate('savedBooks')
     }
-    // classes: async () => {
-    //   return await Class.find({}).populate('professor');
-    // },
-    // class: async (parent, args) => {
-    //   return await Class.findById(args.id);
-    // },
-    // professors: async () => {
-    //   return await Professor.find({}).populate('classes');
-    // }
+    throw AuthenticationError;
+  }
   },
   Mutation: {
     addUser: async (parent, args) => {
-      const user = await User.create(args);
+      const user = (await User.create(args)).populate('savedBooks');
       const token = signToken(user);
 
       return { token, user };
@@ -44,14 +42,15 @@ const resolvers = {
       return { token, user };
     },
 
-    saveBook: async (parent, {bookId, userId, authors, description, title, image, link }, context) => {
-   
+    saveBook: async (parent, {bookId, authors, description=' ', title, image=' ', link=' ' }, context) => {
+
         if(context.user){
+
           return await User.findOneAndUpdate(
-            { _id: userId },
+            { _id: context.user._id },
             { $addToSet: { savedBooks: {bookId, authors, description, title, image, link }}},
             { new: true, runValidators: true }
-          );
+          ).populate('savedBooks');;
         }
         throw AuthenticationError;
    
