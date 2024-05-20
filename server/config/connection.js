@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 
-const connectionString = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/googlebooks';
+const connectionString = process.env.MONGODB_URI || 'mongodb+srv://benzac:sbben8204@booked.sogctvj.mongodb.net/booked?retryWrites=true&w=majority&appName=Booked';
 
 
 
 mongoose.connect(connectionString, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    ssl:true,
   }).then(() => {
     console.log(`Successfully connected to ${connectionString}`);
   }).catch((error) => {
